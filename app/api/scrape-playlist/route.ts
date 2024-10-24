@@ -45,13 +45,21 @@ export async function POST(request: NextRequest) {
 
       // Scroll to load all videos
       await page.evaluate(async () => {
+        let lastHeight = document.body.scrollHeight;
         while (true) {
-          const oldHeight = document.body.scrollHeight;
-          window.scrollTo(0, document.body.scrollHeight);
+          window.scrollTo(0, document.body.scrollHeight); 
           await new Promise((resolve) => setTimeout(resolve, 2000));
-          if (document.body.scrollHeight === oldHeight) break;
+
+          const newHeight = document.body.scrollHeight;
+          if (newHeight === lastHeight) {
+            break;
+          }
+          lastHeight = newHeight;
         }
       });
+
+      await page.waitForTimeout(2000);
+
 
       const videos: VideoData[] = await page.$$eval(
         "#contents ytd-playlist-video-renderer",
